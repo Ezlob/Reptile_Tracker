@@ -9,11 +9,18 @@ type CreateReptileBody = {
   sex: string,
 }
 
+type UpdateReptileBody = {
+  name: string,
+  species: string,
+  sex: string,
+}
+
+
 const createReptile = (client: PrismaClient): RequestHandler =>
   async (req: RequestWithJWTBody, res) => {
-    const user = req.jwtBody?.userId;
+    const userId = req.jwtBody?.userId;
 
-    if (!user) {
+    if (!userId) {
       res.status(401).json({ message: "Unauthorized" });
       return;
     }
@@ -21,7 +28,7 @@ const createReptile = (client: PrismaClient): RequestHandler =>
     const { name, species, sex } = req.body as CreateReptileBody;
     const reptile = await client.reptile.create({
       data: {
-        userId: user,
+        userId,
         name,
         species,
         sex
@@ -70,7 +77,7 @@ const updateReptile = (client: PrismaClient): RequestHandler =>
       return;
     }
 
-    const { name, species, sex } = req.body as CreateReptileBody;
+    const { name, species, sex } = req.body as UpdateReptileBody;
     const updated = await client.reptile.update({
       where: {
         id: parseInt(req.params.reptileId)
