@@ -139,7 +139,7 @@ export const Reptile = () => {
             });
             const body = await result.json();
             if (body.feeding) {
-                body.feeding['createdAt'] = new Date(body.feeding['createdAt']);
+                body.feeding['createdAt'] = new Date();
                 setFeedings([...feedings, body.feeding]);
             }
 
@@ -315,7 +315,7 @@ export const Reptile = () => {
                     <div className='husbandries'>
                         {husbandryRecords.map((husbandry: HusbandryRecord) => (
                             <div key={husbandry.id} className="husbandry-item">
-
+                                <p>Length: {husbandry.length}, Weight: {husbandry.weight}, Temperature: {husbandry.temperature}, Humidity: {husbandry.humidity}</p>
                             </div>
                         ))}
                     </div>

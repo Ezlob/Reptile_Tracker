@@ -51,7 +51,7 @@ export const Dashboard = () => {
 
         if (body.schedules) {
             const dayOfWeek = new Date().toLocaleString('en-us', { weekday: 'long' });
-            setSchedules(body.schedules.filter((sched: Schedule) => { return true == sched[dayOfWeek]; }));
+            setSchedules(body.schedules.filter((schedule: Schedule) => { return true == schedule[dayOfWeek]; }));
         }
     }
 

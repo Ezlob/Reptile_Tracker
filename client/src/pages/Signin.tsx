@@ -1,4 +1,4 @@
-import React, { SyntheticEvent, useState } from "react";
+import { SyntheticEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 export const SignIn = () => {
