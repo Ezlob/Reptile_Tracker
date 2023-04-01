@@ -50,7 +50,7 @@ const createUser = (client: PrismaClient): RequestHandler =>
     const token = jwt.sign({
       userId: user.id
     }, process.env.ENCRYPTION_KEY!!, {
-      expiresIn: '1m'
+      expiresIn: '15m'
     });
 
     res.json({ user, token });
@@ -79,7 +79,7 @@ const createUser = (client: PrismaClient): RequestHandler =>
         const token = jwt.sign({
             userId: user.id
           }, process.env.ENCRYPTION_KEY!!, {
-            expiresIn: '10m'
+            expiresIn: '15m'
           });
       
           res.json({ user, token });

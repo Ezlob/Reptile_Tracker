@@ -57,6 +57,24 @@ const showReptiles = (client: PrismaClient): RequestHandler =>
     res.json({ reptiles });
   }
 
+  const showReptile = (client: PrismaClient): RequestHandler =>
+  async (req: RequestWithJWTBody, res) => {
+    const user = req.jwtBody?.userId;
+
+    if (!user) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const reptile = await client.reptile.findMany({
+      where: {
+        id: parseInt(req.params.reptileId)
+      }
+    })
+
+    res.json({ reptile });
+  }
+
 const updateReptile = (client: PrismaClient): RequestHandler =>
   async (req: RequestWithJWTBody, res) => {
     const user = req.jwtBody?.userId;
@@ -125,6 +143,7 @@ export const reptilesController = controller(
   [
     { path: "/", endpointBuilder: createReptile, method: "post" },
     { path: "/", endpointBuilder: showReptiles, method: "get" },
+    { path: "/:reptileId", endpointBuilder: showReptile, method: "get" },
     { path: "/:reptileId", endpointBuilder: updateReptile, method: "put" },
     { path: "/:reptileId", endpointBuilder: deleteReptile, method: "delete" }
   ]

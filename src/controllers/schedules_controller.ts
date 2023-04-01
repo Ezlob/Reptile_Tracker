@@ -53,7 +53,7 @@ const createSchedule = (client: PrismaClient): RequestHandler =>
                 sunday
             }
         });
-        res.json({schedule});
+        res.json({ schedule });
     }
 
 const showUserSchedules = (client: PrismaClient): RequestHandler =>
@@ -98,14 +98,15 @@ const showReptileSchedules = (client: PrismaClient): RequestHandler =>
                 reptileId: reptile.id
             }
         });
-        res.json({reptileSchedules})
+
+        res.json({ reptileSchedules })
     }
 
-    export const schedulesController = controller(
-        "schedules",
-        [
-            {path: "/:reptileId", endpointBuilder: createSchedule, method: "post"},
-            {path: "/", endpointBuilder: showUserSchedules, method: "post"},
-            {path: "/:reptileId", endpointBuilder: showReptileSchedules, method: "get"}
-        ]
-    )
+export const schedulesController = controller(
+    "schedules",
+    [
+        { path: "/:reptileId", endpointBuilder: createSchedule, method: "post" },
+        { path: "/", endpointBuilder: showUserSchedules, method: "get" },
+        { path: "/:reptileId", endpointBuilder: showReptileSchedules, method: "get" }
+    ]
+)

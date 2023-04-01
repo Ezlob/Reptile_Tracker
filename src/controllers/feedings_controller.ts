@@ -10,7 +10,6 @@ type CreateFeedingBody = {
 const createFeeding = (client: PrismaClient): RequestHandler =>
     async (req: RequestWithJWTBody, res) => {
         const user = req.jwtBody?.userId;
-
         if (!user) {
             res.status(401).json({ message: "Unauthorized" });
             return;
@@ -20,7 +19,7 @@ const createFeeding = (client: PrismaClient): RequestHandler =>
             where: {
                 id: parseInt(req.params.reptileId)
             }
-        })
+        });
 
         if (!reptile || !reptile.userId || reptile.userId != user) {
             res.status(401).json({ message: "Unauthorized" });
