@@ -17,7 +17,7 @@ const router = createBrowserRouter([
     path: "/dashboard",
     element: <Dashboard />
   }, {
-    path: "/reptiles/:id",
+    path: "/reptiles/:reptileId",
     element: <Reptile />
   }, {
     path: "/createReptile",

@@ -1,26 +1,22 @@
-import { SyntheticEvent, useState } from "react";
+import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../contexts/auth";
+import { useApi } from '../hooks/useApi';
 
 export const SignIn = () => {
     const nav = useNavigate();
     const [user, setUser] = useState({ email: "", password: "" });
     const [errorMsg, setErrorMsg] = useState("");
 
-    const signIn = async (e: SyntheticEvent) => {
-        e.preventDefault();
+    const api = useApi();
+    const setToken = useContext(AuthContext);
+
+    const signIn = async () => {
         if (user.email && user.password) {
-            const result = await fetch(`${import.meta.env.VITE_SERVER_URL}/users/signin`, {
-                method: "post",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(user),
-            });
+            const result = await api.post(`${import.meta.env.VITE_SERVER_URL}/users/signin`, user);
 
-            const body = await result.json()
-
-            if (body.token) {
-                window.localStorage.setItem("token", body.token);
+            if (result.token) {
+                setToken(result.token);
             }
 
             setUser({ email: "", password: "" });

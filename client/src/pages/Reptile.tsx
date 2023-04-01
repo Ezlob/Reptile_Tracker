@@ -1,5 +1,6 @@
-import React, { useState, useEffect, SyntheticEvent } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useApi } from '../hooks/useApi';
 
 interface Reptile {
     id: number;
@@ -37,6 +38,8 @@ type Feeding = {
 
 export const Reptile = () => {
     const nav = useNavigate();
+    const api = useApi();
+
     const [errorMsg, setErrorMsg] = useState("");
 
     const [reptile, setReptile] = useState({ name: "", species: "", sex: "" });
@@ -55,70 +58,45 @@ export const Reptile = () => {
 
 
     const getReptile = async () => {
-        const result = await fetch(`${import.meta.env.VITE_SERVER_URL}/reptiles/${reptileId}`, {
-            headers: {
-                Authorization: "Bearer " + window.localStorage.getItem("token"),
-            }
-        });
-        const body = await result.json();
-        if (body.reptile[0]) {
-            setReptile(body.reptile[0]);
+        const result = await api.get(`${import.meta.env.VITE_SERVER_URL}/reptiles/${reptileId}`);
+
+        if (result.reptile[0]) {
+            setReptile(result.reptile[0]);
         }
     }
 
     const getFeedings = async () => {
-        const result = await fetch(`${import.meta.env.VITE_SERVER_URL}/feedings/${reptileId}`, {
-            headers: {
-                Authorization: "Bearer " + window.localStorage.getItem("token"),
-            }
-        });
-        const body = await result.json();
-        if (body.feedings) {
-            setFeedings(body.feedings);
+        const result = await api.get(`${import.meta.env.VITE_SERVER_URL}/feedings/${reptileId}`);
+
+        if (result.feedings) {
+            setFeedings(result.feedings);
         }
     }
 
     const getSchedules = async () => {
-        const result = await fetch(`${import.meta.env.VITE_SERVER_URL}/schedules/${reptileId}`, {
-            headers: {
-                Authorization: "Bearer " + window.localStorage.getItem("token"),
-            }
-        });
-        const body = await result.json();
-        if (body.schedules) {
-            setSchedules(body.schedules);
+        const result = await api.get(`${import.meta.env.VITE_SERVER_URL}/schedules/${reptileId}`);
+
+        if (result.schedules) {
+            setSchedules(result.schedules);
         }
     }
 
     const getHusbandryRecords = async () => {
-        const result = await fetch(`${import.meta.env.VITE_SERVER_URL}/husbandryRecords/${reptileId}`, {
-            headers: {
-                Authorization: "Bearer " + window.localStorage.getItem("token"),
-            }
-        });
-        const body = await result.json();
-        if (body.husbandries) {
-            setHusbandryRecords(body.husbandries);
+        const result = await api.get(`${import.meta.env.VITE_SERVER_URL}/husbandryRecords/${reptileId}`);
+
+        if (result.husbandries) {
+            setHusbandryRecords(result.husbandries);
         }
     }
 
     const updateReptile = async () => {
         if (update.name && update.species && update.sex) {
-            const result = await fetch(`${import.meta.env.VITE_SERVER_URL}/reptiles/${reptileId}`, {
-                method: 'put',
-                headers: {
-                    Authorization: "Bearer " + window.localStorage.getItem("token"),
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(update)
-            });
+            const result = await api.put(`${import.meta.env.VITE_SERVER_URL}/reptiles/${reptileId}`, update);
 
-            const body = await result.json();
-            if (body.reptile) {
-                setReptile(body.reptile);
+            if (result.reptile) {
+                setReptile(result.reptile);
             }
 
-            getReptile();
             setUpdate({ name: "", species: "", sex: "" });
             setErrorMsg("");
         } else {
@@ -126,21 +104,12 @@ export const Reptile = () => {
         }
     }
 
-    const createFeeding = async (e: SyntheticEvent) => {
-        e.preventDefault();
+    const createFeeding = async () => {
         if (food) {
-            const result = await fetch(`${import.meta.env.VITE_SERVER_URL}/feedings/${reptileId}`, {
-                method: 'post',
-                headers: {
-                    Authorization: "Bearer " + window.localStorage.getItem("token"),
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(food)
-            });
-            const body = await result.json();
-            if (body.feeding) {
-                body.feeding['createdAt'] = new Date();
-                setFeedings([...feedings, body.feeding]);
+            const result = await api.post(`${import.meta.env.VITE_SERVER_URL}/feedings/${reptileId}`, food);
+
+            if (result.feeding) {
+                setFeedings([...feedings, result.feeding]);
             }
 
             setFood("");
@@ -150,20 +119,12 @@ export const Reptile = () => {
         }
     }
 
-    const createHusbandryRecord = async (e: SyntheticEvent) => {
-        e.preventDefault();
+    const createHusbandryRecord = async () => {
         if (husbandry.length, husbandry.weight, husbandry.temperature, husbandry.humidity) {
-            const result = await fetch(`${import.meta.env.VITE_SERVER_URL}/husbandryRecords/${reptileId}`, {
-                method: 'post',
-                headers: {
-                    Authorization: "Bearer " + window.localStorage.getItem("token"),
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(husbandry)
-            });
-            const body = await result.json();
-            if (body.husbandry) {
-                setHusbandryRecords([...husbandryRecords, body.husbandry])
+            const result = await api.post(`${import.meta.env.VITE_SERVER_URL}/husbandryRecords/${reptileId}`, husbandry);
+            
+            if (result.husbandry) {
+                setHusbandryRecords([...husbandryRecords, result.husbandry])
             }
 
             setHusbandry({ length: "", weight: "", temperature: "", humidity: "" });
@@ -173,20 +134,12 @@ export const Reptile = () => {
         }
     }
 
-    const createSchedule = async (e: SyntheticEvent) => {
-        e.preventDefault();
+    const createSchedule = async () => {
         if (schedule.type && schedule.description && (schedule.monday || schedule.tuesday || schedule.wednesday || schedule.thursday || schedule.friday || schedule.saturday || schedule.sunday)) {
-            const result = await fetch(`${import.meta.env.VITE_SERVER_URL}/schedules/${reptileId}`, {
-                method: 'post',
-                headers: {
-                    Authorization: "Bearer " + window.localStorage.getItem("token"),
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(schedule)
-            });
-            const body = await result.json();
-            if (body.schedule) {
-                setSchedules([...schedules, body.schedule]);
+            const result = await api.post(`${import.meta.env.VITE_SERVER_URL}/schedules/${reptileId}`, schedule);
+
+            if (result.schedule) {
+                setSchedules([...schedules, result.schedule]);
             }
 
             setSchedule({ type: "", description: "", monday: false, tuesday: false, wednesday: false, thursday: false, friday: false, saturday: false, sunday: false });
@@ -196,23 +149,13 @@ export const Reptile = () => {
         }
     }
 
+    const chooseSex = (e: ChangeEvent<HTMLInputElement>) => {
+        setUpdate({...reptile, sex: e.target.value});
+    }
+
     useEffect(() => {
         if (window.localStorage.getItem("token")) {
-            fetch(`${import.meta.env.VITE_SERVER_URL}/users/me`, {
-                method: "get",
-                headers: {
-                    Authorization: "Bearer " + window.localStorage.getItem("token"),
-                    "Content-Type": "application/json",
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.message) {
-                        nav("/", {
-                            replace: true
-                        })
-                    }
-                })
+            api.get(`${import.meta.env.VITE_SERVER_URL}/users/me`);
         } else {
             nav("/", {
                 replace: true
@@ -227,12 +170,16 @@ export const Reptile = () => {
 
     return (
         <div>
+            <p>{errorMsg}</p>
             <div className='display-reptile'>
                 <div>
                     <form>
                         <input type="text" value={reptile.name} onChange={(e) => { setReptile({...reptile, name: e.target.value})}} /><br />
                         <input type="text" value={reptile.species} onChange={(e) => { setReptile({...reptile, species: e.target.value})}} /><br />
-                        <input type="text" value={reptile.sex} onChange={(e) => { setReptile({...reptile, sex: e.target.value})}} /><br />
+                        <div>
+                            <input type="radio" value="Male" name="gender" checked={reptile.sex === 'Male'}  onChange={(e) => chooseSex}/> Male
+                            <input type="radio" value="Female" name="gender" checked={reptile.sex === 'Female'}  onChange={(e) => chooseSex}/> Female
+                        </div>
                         <button type="button" onClick={updateReptile}>Update Reptile</button>
                     </form>
                 </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useApi } from '../hooks/useApi';
 
 interface Reptile {
     id: number;
@@ -27,42 +28,28 @@ export const Dashboard = () => {
     const nav = useNavigate();
     const [schedules, setSchedules] = useState([]);
     const [reptiles, setReptiles] = useState([]);
+    
+    const api = useApi();
 
     const getReptiles = async () => {
-        const result = await fetch(`${import.meta.env.VITE_SERVER_URL}/reptiles`, {
-            headers: {
-                Authorization: "Bearer " + window.localStorage.getItem("token"),
-            }
-        });
-        const body = await result.json();
+        const result = await api.get(`${import.meta.env.VITE_SERVER_URL}/reptiles`);
 
-        if (body.reptiles) {
-            setReptiles(body.reptiles);
+        if (result.reptiles) {
+            setReptiles(result.reptiles);
         }
     }
 
     const getSchedules = async () => {
-        const result = await fetch(`${import.meta.env.VITE_SERVER_URL}/schedules`, {
-            headers: {
-                Authorization: "Bearer " + window.localStorage.getItem("token"),
-            }
-        });
-        const body = await result.json();
+        const result = await api.get(`${import.meta.env.VITE_SERVER_URL}/schedules`);
 
-        if (body.schedules) {
+        if (result.schedules) {
             const dayOfWeek = new Date().toLocaleString('en-us', { weekday: 'long' });
-            setSchedules(body.schedules.filter((schedule: Schedule) => { return true == schedule[dayOfWeek]; }));
+            setSchedules(result.schedules.filter((schedule: Schedule) => { return true == schedule[dayOfWeek]; }));
         }
     }
 
     const deleteReptile = async (reptileId: number) => {
-        await fetch(`${import.meta.env.VITE_SERVER_URL}/reptiles/${reptileId}`, {
-            method: "delete",
-            headers: {
-                Authorization: "Bearer " + window.localStorage.getItem("token"),
-                "Content-Type": "application/json",
-            }
-        });
+        await api.del(`${import.meta.env.VITE_SERVER_URL}/reptiles/${reptileId}`);
 
         getReptiles();
         getSchedules();
@@ -70,21 +57,11 @@ export const Dashboard = () => {
 
     useEffect(() => {
         if (window.localStorage.getItem("token")) {
-            fetch(`${import.meta.env.VITE_SERVER_URL}/users/me`, {
-                method: "get",
-                headers: {
-                    Authorization: "Bearer " + window.localStorage.getItem("token"),
-                    "Content-Type": "application/json",
-                }
+            api.get(`${import.meta.env.VITE_SERVER_URL}/users/me`);
+        } else {
+            nav("/", {
+                replace: true
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.message) {
-                        nav("/", {
-                            replace: true
-                        })
-                    }
-                })
         }
 
         getReptiles();
@@ -94,18 +71,21 @@ export const Dashboard = () => {
     return (
         <div className='dashboard'>
             <h1>Dashboard</h1>
+            <button onClick={() => { nav("/", { replace: true }); window.localStorage.clear();}}>Log Out</button>
+            
             <div className='schedules'>
                 <h2>Todays' Schedule</h2>
                 <div className='schedule'>
                     {
                         schedules.map((schedule: Schedule) => (
                             <div key={schedule.id} className='schedule-item'>
-                                <h3>Reptile: {reptiles.length > 0 ? (reptiles.filter((reptile: Reptile) => reptile.id == schedule.reptileId)[0] as Reptile).name : ""} | Type: {schedule.type} | Description: {schedule.description}</h3>
+                                <h3>Reptile: {(reptiles.filter((reptile: Reptile) => reptile.id == schedule.reptileId)[0] as Reptile).name} | Type: {schedule.type} | Description: {schedule.description}</h3>
                             </div>
                         ))
                     }
                 </div>
             </div>
+            
             <div className='reptiles'>
                 <h2>Your Reptiles</h2>
                 <div className='reptile'>
