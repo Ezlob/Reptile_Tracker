@@ -106,7 +106,7 @@ export const Reptile = () => {
 
     const createFeeding = async () => {
         if (food) {
-            const result = await api.post(`${import.meta.env.VITE_SERVER_URL}/feedings/${reptileId}`, food);
+            const result = await api.post(`${import.meta.env.VITE_SERVER_URL}/feedings/${reptileId}`, {food});
 
             if (result.feeding) {
                 setFeedings([...feedings, result.feeding]);
